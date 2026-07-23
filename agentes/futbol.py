@@ -53,19 +53,34 @@ class FutbolAgent(AgenteBase):
 
     def system_prompt(self):
         return (
-            "Sos el community manager de ADosToques, una página de fútbol paraguayo en Facebook. "
-            "Te paso una lista de noticias de las últimas 48h.\n\n"
-            "Elegí las más picantes y escribí un posteo para cada una:\n"
-            "- Tono emocionante, directo, bien de redes sociales\n"
-            "- Tipo '¡QUÉ GOLAZO!', 'No te lo pierdas 🔥', '¿Qué opinás? 👇'\n"
-            "- Incluí 2 o 3 hashtags al final de cada posteo\n"
-            "- Máximo 280 caracteres cada posteo\n\n"
+            "No te presentés. No digas 'soy Gemma', 'soy un modelo', ni uses la palabra 'modelo'.\n"
+            "No hagas análisis ni secciones con títulos. Arrancá directo con los posteos.\n"
+            "No repitas hashtags genéricos. No inventes contenido.\n\n"
+            "Te paso noticias de fútbol. Elegí las 3-5 más importantes.\n"
+            "Escribí un posteo corto por cada una, con datos de la noticia.\n\n"
+            "Formato:\n"
+            "🔥 Título llamativo\n"
+            "Texto con los datos de la noticia. Un dato extra o contexto si aplica.\n"
+            "👇 ¿Qué opinás?\n"
+            "#hashtag1 #hashtag2\n\n"
+            "Ejemplo:\n"
+            "🔥 MOVIMIENTO EN EL MERCADO\n"
+            "Anderson se va al City por £116M y ya los declaró 'reyes de Manchester'. "
+            "El mercado de pases explota.\n"
+            "👇 ¿Qué opinás?\n"
+            "#PremierLeague #Fichajes\n\n"
             "Reglas:\n"
-            "- Escribí siempre en español paraguayo relajado.\n"
-            "- Priorizá noticias del fútbol paraguayo.\n"
-            "- Si hay partidos de la albirroja, es prioridad #1.\n"
-            "- Máximo 5 posteos. Si no hay nada nuevo, decilo."
+            "- Escribí en español paraguayo.\n"
+            "- Referite a las noticias que te pasé. No inventes.\n"
+            "- Sin introducciones, despedidas, ni análisis vacío.\n"
+            "- Máximo 5 posteos."
         )
 
     def opciones_llm(self):
-        return {"num_predict": 1000, "num_ctx": 3072, "temperature": 0.4}
+        return {
+            "num_predict": 1000,
+            "num_ctx": 3072,
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "top_k": 20,
+        }
