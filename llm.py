@@ -86,11 +86,27 @@ class LLM:
             for _ in range(timeout):
                 time.sleep(1)
                 if self._health_llama():
-                    log.info("llama.cpp levantado (escuchando)")
-                    proc.poll()
-                    return
+                    log.info("llama-server escuchando, cargando modelo...")
+                    break
+            else:
+                proc.poll()
+                log.warning("no respondió tras %ds", timeout)
+                return
+
+            base = self.cfg["llama_url"].rstrip("/")
+            warmup = {
+                "messages": [{"role": "user", "content": "test"}],
+                "max_tokens": 1, "stream": False,
+            }
+            try:
+                requests.post(f"{base}/v1/chat/completions", json=warmup, timeout=120)
+                log.info("Modelo cargado")
+            except requests.exceptions.ReadTimeout:
+                log.warning("Warmup agotó 120s, el modelo cargará en el primer request real")
+            except Exception as e:
+                log.warning("Warmup falló: %s", e)
+
             proc.poll()
-            log.warning("no respondió tras %ds", timeout)
         except Exception as e:
             log.error("auto-start error: %s", e)
 
