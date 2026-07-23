@@ -28,13 +28,13 @@ class LLM:
         self._probar_backends()
 
     def _probar_backends(self):
-        if self._ping_llama():
-            log.info("llama.cpp disponible (api=%s)", self.llama_api)
+        if self._health_llama():
+            log.info("llama.cpp disponible (escuchando)")
         else:
             if self.cfg.get("auto_start"):
                 self._auto_start()
-                if self._ping_llama():
-                    log.info("llama.cpp disponible tras auto-start (api=%s)", self.llama_api)
+                if self._health_llama():
+                    log.info("llama.cpp disponible tras auto-start (escuchando)")
                 else:
                     log.info("llama.cpp no disponible. Ollama como respaldo.")
             else:
@@ -42,13 +42,18 @@ class LLM:
         if self._ping_ollama():
             log.info("Ollama disponible")
 
-    def _ping_llama(self):
+    def _health_llama(self):
+        """GET /health rápido. No detecta API."""
         url = self.cfg["llama_url"].rstrip("/") + "/health"
         try:
-            r = requests.get(url, timeout=5)
-            if not r.ok:
-                return False
+            r = requests.get(url, timeout=2)
+            return r.ok
         except Exception:
+            return False
+
+    def _ping_llama(self):
+        """Health + detección de API."""
+        if not self._health_llama():
             return False
         api = self._detect_llama_api()
         if api:
@@ -74,7 +79,7 @@ class LLM:
         ]
         for api_name, endpoint, body in tries:
             try:
-                r = requests.post(endpoint, json=body, timeout=5)
+                r = requests.post(endpoint, json=body, timeout=15)
                 if r.ok or r.status_code == 400:
                     log.info("llama.cpp API detectada: %s", api_name)
                     return api_name
@@ -93,8 +98,8 @@ class LLM:
             timeout = self.cfg.get("start_timeout", 30)
             for _ in range(timeout):
                 time.sleep(1)
-                if self._ping_llama():
-                    log.info("Auto-start: llama.cpp levantado correctamente")
+                if self._health_llama():
+                    log.info("Auto-start: llama.cpp levantado correctamente (escuchando)")
                     return
             log.warning("Auto-start: llama.cpp no respondió después de %ds", timeout)
         except Exception as e:
@@ -166,18 +171,21 @@ class LLM:
 
     def resumir(self, system_prompt, user_msg, options=None):
         # 1. Intentar llama.cpp siempre primero
-        if self._ping_llama():
+        if self._health_llama():
+            if not self.llama_api:
+                self._detect_llama_api()
             try:
                 log.info("Usando llama.cpp")
                 return self._llama_chat(system_prompt, user_msg, options)
             except Exception as e:
                 log.warning("llama.cpp falló: %s. Probando Ollama...", e)
         else:
-            # 1b. Si auto_start activo, intentar levantar llama.cpp
             if self.cfg.get("auto_start"):
                 log.info("llama.cpp caído. Intentando auto-start...")
                 self._auto_start()
-                if self._ping_llama():
+                if self._health_llama():
+                    if not self.llama_api:
+                        self._detect_llama_api()
                     try:
                         log.info("Usando llama.cpp (tras auto-start)")
                         return self._llama_chat(system_prompt, user_msg, options)
