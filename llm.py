@@ -25,22 +25,6 @@ class LLM:
         self.cfg = cfg or CONFIG["llm"]
         self.timeout = self.cfg.get("timeout", 180)
         self.llama_api = None
-        self._probar_backends()
-
-    def _probar_backends(self):
-        if self._health_llama():
-            log.info("llama.cpp disponible (escuchando)")
-        else:
-            if self.cfg.get("auto_start"):
-                self._auto_start()
-                if self._health_llama():
-                    log.info("llama.cpp disponible tras auto-start (escuchando)")
-                else:
-                    log.info("llama.cpp no disponible. Ollama como respaldo.")
-            else:
-                log.info("llama.cpp no disponible. Ollama como respaldo.")
-        if self._ping_ollama():
-            log.info("Ollama disponible")
 
     def _health_llama(self):
         """GET /health rápido. No detecta API."""
@@ -92,18 +76,23 @@ class LLM:
         if not cmd:
             log.warning("auto_start=true pero start_command vacío")
             return
-        log.info("Auto-start: ejecutando %s ...", cmd)
+        log.info("Auto-start: %s ...", cmd)
         try:
-            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            proc = subprocess.Popen(
+                cmd, shell=True, start_new_session=True,
+                stdin=subprocess.DEVNULL,
+            )
             timeout = self.cfg.get("start_timeout", 30)
             for _ in range(timeout):
                 time.sleep(1)
                 if self._health_llama():
-                    log.info("Auto-start: llama.cpp levantado correctamente (escuchando)")
+                    log.info("llama.cpp levantado (escuchando)")
+                    proc.poll()
                     return
-            log.warning("Auto-start: llama.cpp no respondió después de %ds", timeout)
+            proc.poll()
+            log.warning("no respondió tras %ds", timeout)
         except Exception as e:
-            log.error("Auto-start: error al ejecutar '%s': %s", cmd, e)
+            log.error("auto-start error: %s", e)
 
     def _llama_chat(self, system_prompt, user_msg, options=None):
         base = self.cfg["llama_url"].rstrip("/")
