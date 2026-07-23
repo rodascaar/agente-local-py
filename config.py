@@ -19,7 +19,7 @@ def _defaults():
         "llm": {
             "ollama_url": "http://127.0.0.1:11434",
             "ollama_model": "qwen2.5:3b",
-            "timeout": 300,
+            "timeout": 600,
             "default_options": {
                 "num_predict": 200,
                 "temperature": 0.5,
