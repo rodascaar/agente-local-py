@@ -32,7 +32,7 @@ class AgenteBase(ABC):
     scheduled_times = None
     max_items_por_feed = 20
     max_items_totales = 30
-    max_chars_por_item = 1000
+    max_chars_por_item = 500
     ntfy_topic = None
     ntfy_tags = "robot"
     ntfy_titulo_template = "Agente: {nombre} — {fecha}"

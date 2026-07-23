@@ -98,11 +98,12 @@ class LLM:
                 "messages": [{"role": "user", "content": "test"}],
                 "max_tokens": 1, "stream": False,
             }
+            warmup_timeout = self.cfg.get("warmup_timeout", 180)
             try:
-                requests.post(f"{base}/v1/chat/completions", json=warmup, timeout=120)
+                requests.post(f"{base}/v1/chat/completions", json=warmup, timeout=warmup_timeout)
                 log.info("Modelo cargado")
             except requests.exceptions.ReadTimeout:
-                log.warning("Warmup agotó 120s, el modelo cargará en el primer request real")
+                log.warning("Warmup agotó %ds", warmup_timeout)
             except Exception as e:
                 log.warning("Warmup falló: %s", e)
 
