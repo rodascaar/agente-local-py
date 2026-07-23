@@ -17,16 +17,9 @@ LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 def _defaults():
     return {
         "llm": {
-            "backend": "auto",
-            "llama_url": "http://127.0.0.1:8080",
-            "llama_model": "gemma4-e2b",
             "ollama_url": "http://127.0.0.1:11434",
-            "ollama_model": "qwen2.5:1.5b",
-            "timeout": 480,
-            "auto_start": False,
-            "start_command": "",
-            "start_timeout": 30,
-            "warmup_timeout": 180,
+            "ollama_model": "qwen2.5:3b",
+            "timeout": 300,
             "default_options": {
                 "num_predict": 200,
                 "temperature": 0.5,
