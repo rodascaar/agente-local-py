@@ -19,9 +19,6 @@ class LicitacionesAgent(AgenteBase):
     ntfy_titulo_template = "📋 Licitaciones — {fecha}"
 
     feeds = [
-        ("ONU Compras", "https://www.ungm.org/Publications/RssFeed"),
-        ("BID", "https://www.iadb.org/en/rss"),
-        ("Banco Mundial", "https://www.worldbank.org/en/rss"),
         ("Reddit Government", "https://www.reddit.com/r/GovernmentContracting/.rss", {"User-Agent": "Mozilla/5.0", "Accept": "application/rss+xml"}),
     ]
 

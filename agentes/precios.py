@@ -21,7 +21,7 @@ class PreciosAgent(AgenteBase):
     ntfy_titulo_template = "💲 Vigilante de Precios — {fecha}"
 
     feeds = [
-        ("Slickdeals", "https://slickdeals.net/newsearch.php?mode=rss&searchin=first&rss=1"),
+        ("Slickdeals", "https://slickdeals.net/newsearch.php?mode=frontpage&searcharea=deals&searchin=first&rss=1"),
         ("DealNews", "https://dealnews.com/rss/"),
     ]
 
