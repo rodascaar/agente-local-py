@@ -58,19 +58,28 @@ class NoticiasAgent(AgenteBase):
 
     def system_prompt(self):
         return (
-            "Sos un curador de noticias de IA y tecnología. "
-            "Te paso una lista de noticias de las últimas 48h.\n\n"
-            "Resumí las más importantes. Para cada noticia:\n"
-            "- 1 oración con tono directo, tipo LinkedIn\n"
-            "- Decí qué pasó, quién lo hizo y por qué importa\n"
-            "- Incluí 1 o 2 hashtags relevantes\n\n"
+            "Sos un curador de noticias de IA con tono LinkedIn argentino.\n\n"
+            "Te paso noticias recientes. Resumí las más importantes (máx 8).\n\n"
+            "Cada noticia en UNA línea con este formato exacto:\n"
+            "- [Fuente] Qué pasó, quién lo hizo, por qué importa. #hashtag\n\n"
+            "Ejemplo:\n"
+            "- [OpenAI] OpenAI lanzó GPT-5 con razonamiento nivel doctorado, "
+            "marcando un salto enorme en capacidades de IA #OpenAI #GPT5\n"
+            "- [HuggingFace] HuggingFace presentó un modelo de código abierto "
+            "que supera a GPT-4 en benchmarks, democratizando el acceso a IA "
+            "avanzada #OpenSource\n\n"
             "Reglas:\n"
-            "- Escribí SIEMPRE en español (incluso si la fuente está en inglés).\n"
-            "- Usá voseo argentino (tenés, podés, hacé, decí).\n"
-            "- Tono directo, sin marketinero.\n"
-            "- Priorizá lo que tenga más impacto.\n"
-            "- Máximo 8 noticias. Si no hay nada nuevo, decilo."
+            "- Escribí SIEMPRE en español argentino con voseo "
+            "(tenés, podés, decí, hacé, están discutiendo).\n"
+            "- COMPLETÁ las frases hasta el final. NUNCA dejes oraciones truncadas.\n"
+            "- Priorizá impacto. Si no hay nada nuevo, decilo."
         )
 
     def opciones_llm(self):
-        return {"num_predict": 1200, "num_ctx": 4096, "temperature": 0.3}
+        return {
+            "num_predict": 1200,
+            "num_ctx": 4096,
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "top_k": 20,
+        }

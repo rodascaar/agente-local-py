@@ -134,6 +134,8 @@ class LLM:
                 "messages": messages,
                 "temperature": opts.get("temperature", 0.5),
                 "max_tokens": opts.get("num_predict", 200),
+                "top_p": opts.get("top_p", 0.95),
+                "top_k": opts.get("top_k", 40),
                 "stream": False,
             }
             r = requests.post(endpoint, json=body, timeout=self.timeout)
@@ -150,6 +152,8 @@ class LLM:
                 "prompt": prompt,
                 "n_predict": opts.get("num_predict", 200),
                 "temperature": opts.get("temperature", 0.5),
+                "top_p": opts.get("top_p", 0.95),
+                "top_k": opts.get("top_k", 40),
                 "stream": False,
             }
             r = requests.post(endpoint, json=body, timeout=self.timeout)
